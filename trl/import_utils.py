@@ -97,6 +97,10 @@ def is_wandb_available() -> bool:
     return find_spec("wandb") is not None
 
 
+def is_mlflow_available() -> bool:
+    return find_spec("mlflow") is not None
+
+
 def is_sklearn_available() -> bool:
     return find_spec("sklearn") is not None
 

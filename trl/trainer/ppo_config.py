@@ -25,7 +25,7 @@ from typing_extensions import Annotated
 from trl.trainer.utils import exact_div
 
 from ..core import flatten_dict
-from ..import_utils import is_wandb_available
+from ..import_utils import is_wandb_available, is_mlflow_available
 
 
 JSONDict = Annotated[Optional[dict], tyro.conf.arg(metavar="JSON", constructor=json.loads)]
@@ -163,13 +163,18 @@ class PPOConfig:
             "`batch_size` must be a multiple of `mini_batch_size * gradient_accumulation_steps`",
         )
 
-        # check if wandb is installed
-        if self.log_with == "wandb":
-            # raise error if wandb is not installed
-            if not is_wandb_available():
-                raise ImportError(
-                    "Please install wandb to use wandb logging. You can do this by running `pip install wandb`."
-                )
+        # check if the relevant experiment tracker is installed
+        trackers = {
+            "wandb": is_wandb_available,
+            "mlflow": is_mlflow_available,
+        }
+        for tracker, check_is_available in trackers.items():
+            if self.log_with == tracker:
+                # raise error if wandb is not installed
+                if not check_is_available():
+                    raise ImportError(
+                        f"Please install {tracker} to use {tracker} logging. You can do this by running `pip install {tracker}`."
+                    )
 
         self.total_ppo_epochs = int(np.ceil(self.steps / self.batch_size))
         assert self.kl_penalty in ["kl", "abs", "mse", "full"]

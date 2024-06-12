@@ -170,7 +170,7 @@ class PPOConfig:
         }
         for tracker, check_is_available in trackers.items():
             if self.log_with == tracker:
-                # raise error if wandb is not installed
+                # raise error if experiment tracker is not installed
                 if not check_is_available():
                     raise ImportError(
                         f"Please install {tracker} to use {tracker} logging. You can do this by running `pip install {tracker}`."
